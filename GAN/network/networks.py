@@ -63,12 +63,14 @@ def train_gan(
     dataloader: DataLoader,
     noise_size: int,
     epochs: int = 100,
-    learning_rate: float = 3e-4
+    learning_rate: float = 3e-4,
+    return_loss: bool = True
 ):
     # Initialize the loss functions and optimizers
     criterion = nn.BCELoss()
     generator_optimizer = optim.Adam(gan.generator.parameters(), lr=learning_rate)
     discriminator_optimizer = optim.Adam(gan.discriminator.parameters(), lr=learning_rate)
+    d_loss_epochs, g_loss_epochs = [], []
 
     for epoch in range(epochs):
         print(f"Epoch {epoch}")
@@ -109,3 +111,9 @@ def train_gan(
 
                 print(f"Epoch [{epoch+1}/{epochs}] Batch [{i}/{len(dataloader)}] "
                       f"Discriminator Loss: {epoch_loss_D:.4f} Generator Loss: {epoch_loss_G:.4f}")
+                
+        d_loss_epochs.append(epoch_loss_D.detach().numpy())
+        g_loss_epochs.append(epoch_loss_G.detach().numpy())
+
+    if return_loss:
+        return d_loss_epochs, g_loss_epochs
